@@ -8,11 +8,16 @@ public:
 	virtual int init(double *, int);
 	virtual int configure();
 	virtual int run();
+	double f(double x, double y);
+	double* getCoors(double radius, double phase);
+	double tableLookup(double* coors);
 
 private:
-	double* terrainArr;
-	float radius;
-	float center[2];
-	int resolution;
+	double** terrainArr;
+	double radius;
+	double center[2];
+	double freq;
+	double amp;
+	int wavetableSize;
 };
 

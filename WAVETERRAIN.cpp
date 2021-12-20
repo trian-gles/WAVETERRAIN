@@ -15,7 +15,7 @@
 // to see at a glance whether you're looking at a local variable or a
 // data member.
 
-WAVETERRAIN::WAVETERRAIN() : theOscil(NULL)
+WAVETERRAIN::WAVETERRAIN()
 {
 }
 
@@ -24,9 +24,21 @@ WAVETERRAIN::WAVETERRAIN() : theOscil(NULL)
 
 WAVETERRAIN::~WAVETERRAIN()
 {
-	delete theOscil;
+	// clean up waveterrain here
 }
 
+double WAVETERRAIN::f(double x, double y)
+{
+	return sin(2 * M_PI * x) * sin(2 * M_PI * y);
+}
+
+double* WAVETERRAIN::getCoors(double radius, double phase)
+{
+	double* coors = new double[2];
+	coors[0] = radius * sin(M_PI * 2 * phase);
+	coors[1] = radius * cos(M_PI * 2 * phase);
+	return coors;
+}
 
 // Called by the scheduler to initialize the instrument. Things done here:
 //   - read, store and check pfields
@@ -45,19 +57,25 @@ int WAVETERRAIN::init(double p[], int n_args)
 		p2: amp
 		p3: freq
 		p4: radius
-		p5: center
-		p6: wavetable size
+		p5: center x
+		p6: center y
+		p7: wavetable size
 */
 	int idk = rtsetoutput(p[0], p[1], this);
-	int amptablelen = 0;
-	int wavetablelen = 0;
-
-	// init wavetable
-	std::cout << "initializing wavetable\n";
-	double* wavetable = (double *) getPFieldTable(4, &wavetablelen);
-	std::cout << "wavetable length:" << wavetablelen << "\n";
-	theOscil = new Ooscili(SR, p[3], wavetable, wavetablelen);
-
+	amp = p[2];
+	freq = p[3];
+	radius = p[4];
+	center[0] = p[5];
+	center[1] = p[6];
+	// build the terrain
+	wavetableSize = p[7];
+	terrainArr = new double*[wavetableSize];
+	for(int i = 0; i < wavetableSize; i++){
+		terrainArr[i] = new double[wavetableSize];
+		for (int j = 0; j < wavetableSize; j++){
+			terrainArr[i][j] = f(i / wavetableSize, j / wavetableSize);
+		}
+	}
 	return nSamps();
 }
 
@@ -85,12 +103,9 @@ int WAVETERRAIN::run()
 	float out[2];
 
 	for (int i = 0; i < framesToRun(); i++) {
-		double p[4];
 		float out[2];
 		int cf = currentFrame();
-		update(p, 4, 1 << 2);
-		float amp = p[2];
-		out[0] = theOscil->next() * amp;
+		out[0] = 0;
 		out[1] = out[0];
 		rtaddout(out);
 		increment();
