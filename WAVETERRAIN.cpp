@@ -24,7 +24,10 @@ WAVETERRAIN::WAVETERRAIN()
 
 WAVETERRAIN::~WAVETERRAIN()
 {
-	// clean up waveterrain here
+	for(int i = 0; i < wavetableSize; i++){
+		delete terrainArr[i];
+	}
+	delete terrainArr;
 }
 
 double WAVETERRAIN::f(double x, double y)
