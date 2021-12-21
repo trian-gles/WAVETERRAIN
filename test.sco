@@ -6,6 +6,6 @@ rtoutput("synth.wav")
 load("./libWAVETERRAIN.so")
 
 
-WAVETERRAIN(0, 3.5, 20000, 387.14, 0.5, 0, 0,1024 )
+WAVETERRAIN(0, 3.5, 20000, 387.14, 1.3, 1, 0.5, 1024 )
 
 

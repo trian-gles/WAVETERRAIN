@@ -30,17 +30,54 @@ WAVETERRAIN::~WAVETERRAIN()
 	delete terrainArr;
 }
 
+// any function that can fill a terrain in x and y from 0 to 1
 double WAVETERRAIN::f(double x, double y)
 {
 	return sin(2 * M_PI * x) * sin(2 * M_PI * y);
 }
 
-double* WAVETERRAIN::getCoors(double radius, double phase)
+double* WAVETERRAIN::getCoors(double phase)
 {
 	double* coors = new double[2];
-	coors[0] = radius * sin(M_PI * 2 * phase);
-	coors[1] = radius * cos(M_PI * 2 * phase);
+	coors[0] = radius * wavetableSize * sin(M_PI * 2 * phase) + center[0];
+	coors[1] = radius * wavetableSize * cos(M_PI * 2 * phase) + center[1];
 	return coors;
+}
+
+ double WAVETERRAIN::tableLookup(int x, int y)
+{
+	while (x < 0){
+		x += wavetableSize;
+	}
+
+
+	while (y < 0){
+		y += wavetableSize;
+	}
+
+	x %= wavetableSize;
+	y %= wavetableSize;
+	return terrainArr[x][y];
+}
+
+double WAVETERRAIN::bilinearInterpolation(double* coors)
+{
+	double x = coors[0];
+	double y = coors[1];
+	double x1 = floor(x);
+	double x2 = ceil(x);
+	double y1 = floor(y);
+	double y2 = ceil(y);
+
+	double q11 = tableLookup((int) x1, (int) y1);
+	double q12 = tableLookup((int) x1, (int) y2);
+	double q21 = tableLookup((int) x2, (int) y1);
+	double q22 = tableLookup((int) x2, (int) y2);
+
+	double fxy1 =  (q11 * (x2 - x) / (x2 - x1)) + (q21 * (x - x1) / (x2 - x1));
+	double fxy2 =  (q12 * (x2 - x) / (x2 - x1)) + (q22 * (x - x1) / (x2 - x1));
+	return (fxy1 * (y2 - y) / (y2 - y1)) + (fxy2 * (y - y1) / (y2 - y1));
+
 }
 
 // Called by the scheduler to initialize the instrument. Things done here:
@@ -59,24 +96,26 @@ int WAVETERRAIN::init(double p[], int n_args)
 		p1: dur
 		p2: amp
 		p3: freq
-		p4: radius
-		p5: center x
-		p6: center y
+		p4: radius (0 - 0.5)
+		p5: center x (0 - 1)
+		p6: center y (0 - 1)
 		p7: wavetable size
 */
 	int idk = rtsetoutput(p[0], p[1], this);
 	amp = p[2];
 	freq = p[3];
 	radius = p[4];
-	center[0] = p[5];
-	center[1] = p[6];
-	// build the terrain
 	wavetableSize = p[7];
+	center[0] = p[5] * wavetableSize;
+	center[1] = p[6] * wavetableSize;
+	std::cout << "wavetableSize: " << wavetableSize << "\n";
+	std::cout << "center x: " << center[0] << " y: " << center[1] << "\n";
+	// build the terrain
 	terrainArr = new double*[wavetableSize];
 	for(int i = 0; i < wavetableSize; i++){
 		terrainArr[i] = new double[wavetableSize];
 		for (int j = 0; j < wavetableSize; j++){
-			terrainArr[i][j] = f(i / wavetableSize, j / wavetableSize);
+			terrainArr[i][j] = f(i / (double)wavetableSize, j / (double)wavetableSize);
 		}
 	}
 	return nSamps();
@@ -108,14 +147,17 @@ int WAVETERRAIN::run()
 	for (int i = 0; i < framesToRun(); i++) {
 		float out[2];
 		int cf = currentFrame();
-		out[0] = 0;
+		double phase = cf * freq / SR;
+		double* coors = getCoors(phase);
+		out[0] = bilinearInterpolation(coors) * amp;
 		out[1] = out[0];
+		std::cout << "outputting val " << out[0] << "\n";
 		rtaddout(out);
 		increment();
+		delete coors;
 	}
 
 	// Return the number of frames we processed.
-
 	return framesToRun();
 }
 

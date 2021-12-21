@@ -9,8 +9,9 @@ public:
 	virtual int configure();
 	virtual int run();
 	double f(double x, double y);
-	double* getCoors(double radius, double phase);
-	double tableLookup(double* coors);
+	double* getCoors(double phase);
+	double tableLookup(int x, int y);
+	double bilinearInterpolation(double* coors);
 
 private:
 	double** terrainArr;
