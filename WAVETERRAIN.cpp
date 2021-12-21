@@ -25,9 +25,9 @@ WAVETERRAIN::WAVETERRAIN() : branch(0), terrainArr(NULL)
 WAVETERRAIN::~WAVETERRAIN()
 {
 	for(int i = 0; i < wavetableSize; i++){
-		delete terrainArr[i];
+		delete[] terrainArr[i];
 	}
-	delete terrainArr;
+	delete[] terrainArr;
 }
 
 // any function that can fill a terrain in x and y from 0 to 1
@@ -168,7 +168,7 @@ int WAVETERRAIN::run()
 		out[1] = out[0];
 		rtaddout(out);
 		increment();
-		delete coors;
+		delete[] coors;
 	}
 
 	// Return the number of frames we processed.
