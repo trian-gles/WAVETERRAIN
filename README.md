@@ -1,4 +1,4 @@
-![Image](waveterrain.jpg)
+![Image](./waveterrain.jpg)
 
 ## ABOUT
 A synthesizer which traveses a circular path on a 3d plane to generate a waveform.
