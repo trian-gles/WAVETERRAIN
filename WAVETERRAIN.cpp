@@ -15,7 +15,7 @@
 // to see at a glance whether you're looking at a local variable or a
 // data member.
 
-WAVETERRAIN::WAVETERRAIN()
+WAVETERRAIN::WAVETERRAIN() : branch(0), terrainArr(NULL)
 {
 }
 
@@ -94,11 +94,11 @@ int WAVETERRAIN::init(double p[], int n_args)
 	/* Args:
 		p0: inskip
 		p1: dur
-		p2: amp
-		p3: freq
-		p4: radius (0 - 0.5)
-		p5: center x (0 - 1)
-		p6: center y (0 - 1)
+		p2: amp*
+		p3: freq*
+		p4: radius (0 - 0.5)*
+		p5: center x (0 - 1)*
+		p6: center y (0 - 1)*
 		p7: wavetable size
 */
 	int idk = rtsetoutput(p[0], p[1], this);
@@ -135,6 +135,17 @@ int WAVETERRAIN::configure()
 	return 0;	// IMPORTANT: Return 0 on success, and -1 on failure.
 }
 
+void WAVETERRAIN::doupdate()
+{
+	double p[7];
+	update(p, 7, 1 << 2 | 1 << 3 | 1 << 4 | 1 << 5 | 1 << 6);
+
+	amp = p[2];
+	freq = p[3];
+	radius = p[4];
+	center[0] = p[5] * wavetableSize;
+	center[1] = p[6] * wavetableSize;
+}
 
 
 // Called by the scheduler for every time slice in which this instrument
@@ -145,13 +156,16 @@ int WAVETERRAIN::run()
 	float out[2];
 
 	for (int i = 0; i < framesToRun(); i++) {
+		if (--branch <= 0){
+			doupdate();
+			branch = getSkip();
+		}
 		float out[2];
 		int cf = currentFrame();
 		double phase = cf * freq / SR;
 		double* coors = getCoors(phase);
 		out[0] = bilinearInterpolation(coors) * amp;
 		out[1] = out[0];
-		std::cout << "outputting val " << out[0] << "\n";
 		rtaddout(out);
 		increment();
 		delete coors;

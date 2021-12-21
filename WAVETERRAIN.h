@@ -1,4 +1,4 @@
-#include <Ougens.h>		  // the base class for this instrument
+#include <Ougens.h>
 
 class WAVETERRAIN : public Instrument {
 
@@ -12,8 +12,10 @@ public:
 	double* getCoors(double phase);
 	double tableLookup(int x, int y);
 	double bilinearInterpolation(double* coors);
+	void doupdate();
 
 private:
+	int branch;
 	double** terrainArr;
 	double radius;
 	double center[2];

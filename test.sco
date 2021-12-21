@@ -5,7 +5,9 @@ rtoutput("synth.wav")
 
 load("./libWAVETERRAIN.so")
 
+centerx = maketable("line", "nonorm", 1024, 0, 0, 1, 0.4, 2, 0.5)
 
-WAVETERRAIN(0, 3.5, 20000, 387.14, 1.3, 1, 0.5, 1024 )
+
+WAVETERRAIN(0, 7, 20000, 387.14, 0.5, centerx, 0.5, 1024 )
 
 
