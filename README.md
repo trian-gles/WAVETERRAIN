@@ -1,4 +1,4 @@
-![Image](./waveterrain.jpg)
+![waveterrain](https://user-images.githubusercontent.com/69212477/146979019-3cb75fd7-74c2-4b27-ac05-e9f1f727ca4d.png)
 
 ## ABOUT
 A synthesizer which traveses a circular path on a 3d plane to generate a waveform.
