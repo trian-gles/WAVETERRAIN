@@ -4,7 +4,7 @@
 #include <math.h>
 #include <PField.h>
 #include <Instrument.h>
-#include "WAVETERRAIN.h"			  // declarations for this instrument class
+#include "WAVETERRAIN.h"
 #include <rt.h>
 #include <rtdefs.h>
 #include <iostream>
@@ -15,7 +15,7 @@
 // to see at a glance whether you're looking at a local variable or a
 // data member.
 
-WAVETERRAIN::WAVETERRAIN() : branch(0), terrainArr(NULL)
+WAVETERRAIN::WAVETERRAIN() : branch(0), terrainArr(NULL), phase(0)
 {
 }
 
@@ -30,12 +30,14 @@ WAVETERRAIN::~WAVETERRAIN()
 	delete[] terrainArr;
 }
 
-// any function that can fill a terrain in x and y from 0 to 1
+// According to Curtis Rhoads: any function that can fill a terrain in x and y from 0 to 1 with x and y
+// functions that are continuous and have continuous first-order partial derivatives
 double WAVETERRAIN::f(double x, double y)
 {
 	return sin(2 * M_PI * x) * sin(2 * M_PI * y);
 }
 
+// the orbit function for traversing the terrain given a phase
 double* WAVETERRAIN::getCoors(double phase)
 {
 	double* coors = new double[2];
@@ -44,7 +46,8 @@ double* WAVETERRAIN::getCoors(double phase)
 	return coors;
 }
 
- double WAVETERRAIN::tableLookup(int x, int y)
+// references the underlying table
+double WAVETERRAIN::tableLookup(int x, int y)
 {
 	while (x < 0){
 		x += wavetableSize;
@@ -80,6 +83,12 @@ double WAVETERRAIN::bilinearInterpolation(double* coors)
 
 }
 
+void WAVETERRAIN::setFreq(double newFreq)
+{
+	freq = newFreq;
+	phaseInc = freq / SR;
+}
+
 // Called by the scheduler to initialize the instrument. Things done here:
 //   - read, store and check pfields
 //   - set output file (or bus) pointer
@@ -103,7 +112,7 @@ int WAVETERRAIN::init(double p[], int n_args)
 */
 	int idk = rtsetoutput(p[0], p[1], this);
 	amp = p[2];
-	freq = p[3];
+	setFreq(p[3]);
 	radius = p[4];
 	wavetableSize = p[7];
 	center[0] = p[5] * wavetableSize;
@@ -141,7 +150,9 @@ void WAVETERRAIN::doupdate()
 	update(p, 7, 1 << 2 | 1 << 3 | 1 << 4 | 1 << 5 | 1 << 6);
 
 	amp = p[2];
-	freq = p[3];
+	if (p[3] != freq){
+		setFreq(p[3]);
+	}
 	radius = p[4];
 	center[0] = p[5] * wavetableSize;
 	center[1] = p[6] * wavetableSize;
@@ -161,8 +172,8 @@ int WAVETERRAIN::run()
 			branch = getSkip();
 		}
 		float out[2];
-		int cf = currentFrame();
-		double phase = cf * freq / SR;
+		//double phase = cf * freq / SR;
+		phase += phaseInc;
 		double* coors = getCoors(phase);
 		out[0] = bilinearInterpolation(coors) * amp;
 		out[1] = out[0];

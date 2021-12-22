@@ -12,11 +12,14 @@ public:
 	double* getCoors(double phase);
 	double tableLookup(int x, int y);
 	double bilinearInterpolation(double* coors);
+	void setFreq(double freq);
 	void doupdate();
 
 private:
 	int branch;
 	double** terrainArr;
+	double phase;
+	double phaseInc;
 	double radius;
 	double center[2];
 	double freq;
