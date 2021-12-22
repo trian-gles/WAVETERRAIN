@@ -6,6 +6,11 @@ A synthesizer which traveses a circular path on a 3d plane to generate a wavefor
 ## USAGE
 Make sure that package.conf points to the appropriate Makefile on building
 
+Due to the the nature of wave terrain synthesis, a DC offset will likely be present. 
+
+Notice the DCBLOCK usage in the demo scorefile.
+
+
 Args:
 - 0 inskip
 - 1 duration
@@ -20,6 +25,5 @@ fields 2, 3, 4, 5 and 6 can receive dynamic updates from a table or elsewhere, t
 
 ## TODO
 - Get dynamic frequency updates working
-- Fix bus_config issues
 - Set up additional terrain functions
 - Set up additional path functions
