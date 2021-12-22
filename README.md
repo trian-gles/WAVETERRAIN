@@ -3,6 +3,8 @@
 ## ABOUT
 A synthesizer which traveses a circular path on a 3d plane to generate a waveform.
 
+For more information, see Curtis Roads's *The Computer Music Tutorial*
+
 ## USAGE
 Make sure that package.conf points to the appropriate Makefile on building
 
