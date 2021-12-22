@@ -6,9 +6,10 @@ A synthesizer which traveses a circular path on a 3d plane to generate a wavefor
 ## USAGE
 Make sure that package.conf points to the appropriate Makefile on building
 
-Due to the the nature of wave terrain synthesis, a DC offset will likely be present. 
+Due to the the nature of wave terrain synthesis, a DC offset will likely be present,
+notice the DCBLOCK usage in the demo scorefile.
 
-Notice the DCBLOCK usage in the demo scorefile.
+In the `WAVETABLE::f` funtion try inputting different terrain functions.
 
 
 Args:
@@ -21,9 +22,8 @@ Args:
 - 6 centery
 - 7 wave terrain width (terrain area = width^2)
 
-fields 2, 3, 4, 5 and 6 can receive dynamic updates from a table or elsewhere, though frequency currently doesn't work so well
+fields 2, 3, 4, 5 and 6 can receive dynamic updates from a table or elsewhere
 
 ## TODO
-- Get dynamic frequency updates working
 - Set up additional terrain functions
 - Set up additional path functions
