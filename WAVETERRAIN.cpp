@@ -35,6 +35,7 @@ WAVETERRAIN::~WAVETERRAIN()
 double WAVETERRAIN::f(double x, double y)
 {
 	return sin(2 * M_PI * x) * sin(2 * M_PI * y);
+	// return (x - y) * (x - 1) * (x + 1) * (y - 1) * (y + 1);
 }
 
 // the orbit function for traversing the terrain given a phase
